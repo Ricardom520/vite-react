@@ -1,0 +1,12 @@
+node_modules/*
+.bin/
+dist/*
+.sass-cache/
+.idea/
+config.mine.js
+build/
+
+
+debug.log
+
+.DS_Store

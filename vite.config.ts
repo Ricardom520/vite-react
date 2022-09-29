@@ -1,10 +1,43 @@
 import path from 'path'
-import { defineConfig } from 'vite'
+import { UserConfigExport, ConfigEnv } from 'vite'
 import legacy from '@vitejs/plugin-legacy'
+import { createHtmlPlugin } from 'vite-plugin-html'
+import viteMockPlugin from './plugins/modifyDistPath'
+import ServeEditPlugin from './plugins/serverEdit'
 
-export default defineConfig({
+const pkg = require('./package.json')
+
+const BASE_PROJECT_PATH = `project/${pkg.name}/pc/`
+
+const IMAGES_REGEXP = ['png', 'jpg', 'jpge', 'gif', 'svga']
+
+const config: UserConfigExport = {
   /** 入口文件 */
   root: './src/entry/index',
+  build: {
+    outDir: path.join(__dirname, './dist/'),
+    emptyOutDir: true,
+    manifest: 'rev-manifest.json',
+    rollupOptions: {
+      output: {
+        entryFileNames: BASE_PROJECT_PATH + 'js/[name]-[hash].js',
+        assetFileNames: (val) => {
+          const works = val.name?.split('.')
+          let ext: string = 'asset'
+
+          if (works) {
+            ext = works[works.length - 1]
+          }
+
+          if (IMAGES_REGEXP.includes(ext)) {
+            ext = 'images'
+          }
+
+          return BASE_PROJECT_PATH + ext + '/[name]-[hash].[ext]'
+        }
+      }
+    }
+  },
   /** 开发配置 */
   server: {
     host: '0.0.0.0',
@@ -43,6 +76,24 @@ export default defineConfig({
     legacy({
       targets: ['Android >= 39', 'Chrome >= 39', 'Safari >= 10.1', 'iOS >= 10', '> 0.5%'],
       polyfills: ['es.promise', 'regenerator-runtime']
-    })
+    }),
+    viteMockPlugin(),
+    ServeEditPlugin()
   ]
-})
+}
+
+export default ({ command, mode }: ConfigEnv) => {
+  const { plugins = [], build = {} } = config
+  const isBuild = command === 'build'
+
+  if (isBuild) {
+    config.base = '/' + BASE_PROJECT_PATH
+    // 压缩 Html 插件
+    config.plugins = [...plugins, createHtmlPlugin()]
+    config.define = {
+      'process.env.NODE_ENV': '"production"'
+    }
+  }
+
+  return config
+}

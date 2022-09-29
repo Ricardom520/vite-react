@@ -1,7 +1,13 @@
 import React from 'react'
+import LogoIcon from '~/images/logo.png'
 
 const Home: React.FC = () => {
-  return <div>Hello World123</div>
+  return (
+    <div>
+      Hello World
+      <img src={LogoIcon} />
+    </div>
+  )
 }
 
 export default Home

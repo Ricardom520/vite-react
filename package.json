@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "vite serve ./src/entry/index/",
+    "build": "vite build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -21,7 +22,8 @@
     "less": "^4.1.3",
     "path": "^0.12.7",
     "react-app-polyfill": "^3.0.0",
-    "vite": "^3.1.3"
+    "vite": "^3.1.3",
+    "vite-plugin-html": "^3.2.0"
   },
   "dependencies": {
     "react": "^18.2.0",

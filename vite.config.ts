@@ -1,5 +1,5 @@
 import path from 'path'
-import { UserConfigExport, ConfigEnv } from 'vite'
+import { UserConfigExport, ConfigEnv, loadEnv  } from 'vite'
 import legacy from '@vitejs/plugin-legacy'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import viteMockPlugin from './plugins/modifyDistPath'
@@ -13,7 +13,6 @@ const IMAGES_REGEXP = ['png', 'jpg', 'jpge', 'gif', 'svga']
 
 const config: UserConfigExport = {
   /** 入口文件 */
-  root: './src/entry/index',
   build: {
     outDir: path.join(__dirname, './dist/'),
     emptyOutDir: true,
@@ -62,7 +61,7 @@ const config: UserConfigExport = {
     preprocessorOptions: {
       less: {
         /** 支持内敛JavaScript */
-        javascriptEnabled: true
+        javascriptEnabled: true,
       }
     },
     /** 开启模块化 */
@@ -84,16 +83,26 @@ const config: UserConfigExport = {
 
 export default ({ command, mode }: ConfigEnv) => {
   const { plugins = [], build = {} } = config
+  const env = loadEnv(mode, process.cwd());
   const isBuild = command === 'build'
 
   if (isBuild) {
     config.base = '/' + BASE_PROJECT_PATH
     // 压缩 Html 插件
-    config.plugins = [...plugins, createHtmlPlugin()]
     config.define = {
       'process.env.NODE_ENV': '"production"'
     }
   }
+
+  config.plugins = [...plugins, createHtmlPlugin({
+    inject: {
+      data: {
+        ...env,
+        devServerToolScript: `<script type="module" src="./devServerTool/fronted/index.ts"></script>`,
+        devServerToolCss: `<link href="./devServerTool/fronted/index.css" rel="stylesheet" >`
+      }
+    }
+  })]
 
   return config
 }

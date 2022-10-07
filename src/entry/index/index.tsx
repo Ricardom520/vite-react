@@ -24,9 +24,7 @@ const Router = () => {
 const root = ReactDOM.createRoot(document.getElementById('app') as HTMLElement)
 
 root.render(
-  <React.StrictMode>
-    <BrowserRouter>
-      <Router/>
-    </BrowserRouter>
-  </React.StrictMode>
+  <BrowserRouter>
+    <Router/>
+  </BrowserRouter>
 )

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import LogoIcon from '~/images/logo.png'
 import styles from './index.module.less'
 import Tool from '~@/widget/tool'

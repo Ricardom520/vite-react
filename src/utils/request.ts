@@ -7,7 +7,7 @@ export interface ResponseData<T = any> extends AxiosResponse {
 const service = axios.create({
   baseURL: '/',
   timeout: 5000,
-  withCredentials: true
+  // withCredentials: true
 })
 
 service.interceptors.request.use(
@@ -27,3 +27,4 @@ service.interceptors.response.use(
 )
 
 export default service
+          

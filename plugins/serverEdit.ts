@@ -21,7 +21,7 @@ function ServeEdit(): Plugin {
     },
     config(val) {
       // console.log(val.plugins)
-    },
+    }
     // configResolved(val) {
     //   console.log('configResolved')
     //   console.log(val.plugins)

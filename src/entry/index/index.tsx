@@ -2,10 +2,10 @@ import 'react-app-polyfill/stable'
 import 'react-app-polyfill/ie9'
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import {BrowserRouter, useRoutes} from 'react-router-dom'
+import { BrowserRouter, useRoutes } from 'react-router-dom'
 import Home from '~@/pages/home'
 
-import './index.less'
+import './index.scss'
 
 const routes = [
   {
@@ -25,6 +25,6 @@ const root = ReactDOM.createRoot(document.getElementById('app') as HTMLElement)
 
 root.render(
   <BrowserRouter>
-    <Router/>
+    <Router />
   </BrowserRouter>
 )

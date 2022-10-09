@@ -1,12 +1,8 @@
-import axios, { AxiosResponse } from 'axios'
-
-export interface ResponseData<T = any> extends AxiosResponse {
-  list: T
-}
+import axios from 'axios'
 
 const service = axios.create({
   baseURL: '/',
-  timeout: 5000,
+  timeout: 5000
   // withCredentials: true
 })
 
@@ -27,4 +23,3 @@ service.interceptors.response.use(
 )
 
 export default service
-          

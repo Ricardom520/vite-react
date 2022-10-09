@@ -1,17 +1,22 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
+const bodyParser = require('body-parser')
 
 const app = express()
 
-app.all('*', function(req, res, next) {
+app.use(bodyParser())
+
+app.all('*', function (req, res, next) {
   res.header('Access-Control-Allow-Credentials', 'true')
-  res.header("Access-Control-Allow-Origin", "*")
-  res.header("Access-Control-Allow-Headers", "X-Requested-With")
-  res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS")
-  res.header("Content-Type", "application/json;charset=utf-8")
+  res.header('Access-Control-Allow-Origin', '*')
+  res.header('Access-Control-Allow-Headers', '*')
+  res.header('Access-Control-Allow-Methods', 'PUT,POST,GET,DELETE,OPTIONS')
+  res.header('Content-Type', 'application/json;charset=utf-8')
   next()
 })
+
+const basePath = '../../src'
 
 app.get('/getLocalFolder', async function (req, res) {
   const readFile = async (filePath, abPath) => {
@@ -21,7 +26,7 @@ app.get('/getLocalFolder', async function (req, res) {
     for (let i = 0; i < files.length; i++) {
       const _abPath = '/' + files[i]
       const _path = filePath + _abPath
-      
+
       const stat = await fs.statSync(_path)
 
       if (stat && stat.isDirectory()) {
@@ -36,7 +41,7 @@ app.get('/getLocalFolder', async function (req, res) {
         content.push({
           name: files[i],
           type: 1,
-          path: abPath + _abPath,
+          path: abPath + _abPath
         })
       }
     }
@@ -44,7 +49,7 @@ app.get('/getLocalFolder', async function (req, res) {
     return content
   }
 
-  const filesRes = await readFile('../../src', '')
+  const filesRes = await readFile(basePath, '')
 
   res.send({
     success: 0,
@@ -53,12 +58,28 @@ app.get('/getLocalFolder', async function (req, res) {
 })
 
 app.get('/getLocalFileDetail', async function (req, res) {
-  console.log(req.headers)
+  const data = fs.readFileSync(basePath + req.query.path, 'utf-8')
+
+  res.send({
+    success: 0,
+    data: JSON.stringify(data)
+  })
+})
+
+app.post('/submitFile', async function (req, res) {
+  const fd = fs.openSync(basePath + req.body.path, 'w')
+
+  fs.writeFileSync(fd, req.body.content, 'utf-8')
+
+  fs.closeSync(fd)
+
+  res.send({
+    success: 0
+  })
 })
 
 const server = app.listen(8081, function () {
-
   var port = server.address().port
 
-  console.log("应用实例，访问地址为 http://localhost:%s", port)
+  console.log('应用实例，访问地址为 http://localhost:%s', port)
 })

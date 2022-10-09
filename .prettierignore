@@ -1,0 +1,14 @@
+**/js/lib/**
+dist/**
+node_modules/**
+**/*.json
+*.yml
+*.md
+*.png
+*.jpg
+*.gif
+*.lock
+.gitignore
+.prettierignore
+*.pug
+*.svg

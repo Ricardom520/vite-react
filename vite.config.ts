@@ -4,9 +4,9 @@ import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
 import eslintPlugin from 'vite-plugin-eslint'
 import tsconfigPaths from 'vite-tsconfig-paths'
+import StylelintPlugin from 'vite-plugin-stylelint'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import viteMockPlugin from './plugins/modifyDistPath'
-import ServeEditPlugin from './plugins/serverEdit'
 
 const pkg = require('./package.json')
 
@@ -83,9 +83,12 @@ const config: UserConfigExport = {
       include: ['src/**/*.ts', 'src/**/*.tsx', 'src/*.ts', 'src/*.tsx']
     }),
     viteMockPlugin(),
-    ServeEditPlugin(),
     react(),
-    tsconfigPaths()
+    tsconfigPaths(),
+    StylelintPlugin({
+      fix: true,
+      quiet: true
+    })
   ]
 }
 
@@ -108,8 +111,8 @@ export default ({ command, mode }: ConfigEnv) => {
       inject: {
         data: {
           ...env,
-          devServerToolScript: `<script type="module" src="/winkey_tool/index.js"></script>`,
-          devServerToolCss: `<link href="/winkey_tool/index.css" rel="stylesheet" >`
+          devServerToolScript: `<script type="module" src="/winkey_tool/js/index.js"></script>`,
+          devServerToolCss: `<link href="/winkey_tool/css/index.css" rel="stylesheet" >`
         }
       }
     })

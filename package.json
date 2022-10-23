@@ -61,6 +61,7 @@
     "vite-tsconfig-paths": "^3.5.1"
   },
   "dependencies": {
+    "@babel/preset-env": "^7.19.4",
     "axios": "^0.27.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -68,7 +69,6 @@
     "react-router-config": "^5.1.1",
     "react-router-dom": "^6.4.1",
     "sass": "^1.55.0",
-    "scss": "^0.2.4",
-    "usehooks-ts": "^2.7.2"
+    "scss": "^0.2.4"
   }
 }

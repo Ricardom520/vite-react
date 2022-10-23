@@ -4,39 +4,31 @@ const pkg = require('./package.json')
 const PROJECT_NAME = pkg.name
 const WORKFLOW = 'vite'
 const PLATFORM = 'pc'
-const SRC_ROOT = './src'
+const SRC_ROOT = './src/'
 const VERSION = pkg.version
 const USE_YARN = true
 
-// module.exports = initWinkeyConfig(({ env }) => {
-//   const winkeyConfig: WinkeyProjectConfig = {
-//     name: PROJECT_NAME,
-//     workflow: WORKFLOW,
-//     platform: PLATFORM,
-//     version: VERSION,
-//     yarn: USE_YARN,
-//     dest: {
-//       basePath: `/project/${PROJECT_NAME}/${PLATFORM}`,
-//       jsPath: 'js',
-//       cssPath: 'css',
-//       htmlPath: 'html',
-//       imagesPath: 'images',
-//       revPath: 'assets'
-//     },
-//     alias: {
-//       srcRoot: SRC_ROOT
-//     },
-//     port: 9999
-//     // urlLoaderMatch：url-loader 拓展
-//     // proxy: proxy 配置
-//   }
-
-//   return winkeyConfig
-// })
-export default () => {
-  return {
-    server: {
-      port: 9999
-    }
+const winkeyConfig: WinkeyProjectConfig = {
+  name: PROJECT_NAME,
+  workflow: WORKFLOW,
+  platform: PLATFORM,
+  version: VERSION,
+  yarn: USE_YARN,
+  dest: {
+    basePath: `project/${PROJECT_NAME}/${PLATFORM}/`,
+    jsPath: 'js',
+    cssPath: 'css',
+    htmlPath: 'html',
+    imagesPath: 'images',
+    revPath: 'assets'
+  },
+  cssModules: true,
+  alias: {
+    srcRoot: SRC_ROOT
+  },
+  server: {
+    port: 9999
   }
 }
+
+export default initWinkeyConfig.bind(this, winkeyConfig)

@@ -1,13 +1,26 @@
 import path from 'path'
-import { UserConfigExport, ConfigEnv, loadEnv } from 'vite'
+import { OutgoingHttpHeaders, Server } from 'node:http'
+import {
+  UserConfigExport,
+  loadEnv,
+  ConfigEnv,
+  CorsOptions,
+  WatchOptions,
+  PluginOption,
+  CSSOptions
+} from 'vite'
 import legacy from '@vitejs/plugin-legacy'
 import react from '@vitejs/plugin-react'
 import eslintPlugin from 'vite-plugin-eslint'
 import tsconfigPaths from 'vite-tsconfig-paths'
 import StylelintPlugin from 'vite-plugin-stylelint'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import modifyDistPath from './plugins/modifyDistPath'
+import { cwd } from './js/consts'
 
 export interface WinkeyProjectConfig {
+  /** 根目录 */
+  root?: string
   /** 项目名称 */
   name?: string
   /** 项目工具 */
@@ -18,6 +31,8 @@ export interface WinkeyProjectConfig {
   version?: string
   /** 是否使用yarn */
   yarn?: boolean
+  /**  */
+  cacheDir?: string
   /** 打包配置 */
   dest?: {
     /** 基础路径 */
@@ -43,25 +58,64 @@ export interface WinkeyProjectConfig {
         find: string
         replacement: string
       }[]
-  /** 本地开发端口号 */
-  port?: number
+  /** 服务端开发 */
+  server?: {
+    /** 本地开发端口号 */
+    port?: number
+    /** 设为 true 时若端口已被占用则会直接退出，而不是尝试下一个可用端口。 */
+    strictPort?: boolean
+    /** 需要一个合法可用的证书。 */
+    https?: boolean
+    /** 在开发服务器启动时自动在浏览器中打开应用程序。 */
+    open?: string | boolean
+    /** 为开发服务器配置 CORS。 */
+    cors?: boolean | CorsOptions
+    /** 指定服务器响应的 header。 */
+    headers?: OutgoingHttpHeaders
+    /** 禁用或配置 HMR 连接（用于 HMR websocket 必须使用不同的 http 服务器地址的情况）。 */
+    hmr?:
+      | boolean
+      | {
+          protocol?: string
+          host?: string
+          port?: number
+          path?: string
+          timeout?: number
+          overlay?: boolean
+          clientPort?: number
+          server?: Server
+        }
+    /** 传递给 chokidar 的文件系统监听器选项。 */
+    watch?: WatchOptions
+  }
   /** 是否启用样式模块化 */
   cssModules?: boolean
+  /** 设为 false 可以避免 Vite 清屏而错过在终端中打印某些关键信息 */
+  clearScreen?: boolean
+  /** 小于此阈值的导入或引用资源将内联为 base64 编码 */
+  limitSize?: number
+  /** 输出目录 */
+  outDir?: string
+  /** 自定义插件 */
+  plugins?: PluginOption[]
+  /** 自定义css */
+  css?: CSSOptions
 }
-
-type EnvType<T> = T extends infer P ? P : never
 
 const IMAGES_REGEXP = ['png', 'jpg', 'jpge', 'gif', 'svga']
 
 export const initWinkeyConfig = (
-  val: (obj: { env: EnvType<NodeJS.ProcessEnv> }) => WinkeyProjectConfig,
-  command?: string
+  winkeyConfig: WinkeyProjectConfig,
+  viteConfig?: {
+    mode: string
+    command: string
+    ssrBuilr: boolean
+  }
 ) => {
-  console.log(command)
-  const localConfig = val({ env: process.env })
+  const localConfig = winkeyConfig
 
   /** 基础路径 */
-  const BASE_PROJECT_PATH = path.resolve(localConfig?.dest?.basePath || './')
+  const BASE_PROJECT_PATH = localConfig?.dest?.basePath || './'
   /** css文件路径 */
   const CSS_PATH = localConfig?.dest?.cssPath || 'css'
   /** js文件路径 */
@@ -77,13 +131,21 @@ export const initWinkeyConfig = (
         srcRoot: string
       }
     ).srcRoot || './src/'
+  /** 输出目录 */
+  const OUTDIR_PATH = localConfig?.outDir || './dist/'
 
   const config: UserConfigExport = {
+    /** 根目录 */
+    root: localConfig.root || './',
+    // /** 存储缓存文件的目录。 */
+    cacheDir: localConfig.cacheDir || 'node_modules/.vite',
+    clearScreen: localConfig.clearScreen || false,
     /** 出口文件 */
     build: {
-      outDir: path.resolve(__dirname, './dist/'),
+      outDir: path.join(cwd, OUTDIR_PATH),
       emptyOutDir: true,
       manifest: 'rev-manifest.json',
+      assetsInlineLimit: 4096,
       rollupOptions: {
         output: {
           entryFileNames: BASE_PROJECT_PATH + 'js/[name]-[hash].js',
@@ -116,7 +178,7 @@ export const initWinkeyConfig = (
     /** 开发配置 */
     server: {
       host: '0.0.0.0',
-      port: 9999
+      port: localConfig.server?.port || 5000
     },
     /** 路径设置 */
     resolve: {
@@ -163,6 +225,12 @@ export const initWinkeyConfig = (
       eslintPlugin({
         include: ['src/**/*.ts', 'src/**/*.tsx', 'src/*.ts', 'src/*.tsx']
       }),
+      modifyDistPath({
+        root: OUTDIR_PATH + BASE_PROJECT_PATH,
+        outDir: OUTDIR_PATH,
+        html: HTML_PATH,
+        assets: '/assets'
+      }),
       react(),
       tsconfigPaths(),
       StylelintPlugin({
@@ -172,26 +240,35 @@ export const initWinkeyConfig = (
     ]
   }
 
-  const { plugins = [], build = {} } = config
-  // const env = loadEnv(mode, process.cwd())
-  // const isBuild = command === 'build'
+  /** 合并plugin */
+  config.plugins = Object.assign(config.plugins as PluginOption[], localConfig.plugins || [])
+  /** 合并css */
+  config.css = Object.assign(config.css as CSSOptions, localConfig.css || {})
 
-  // if (isBuild) {
-  //   config.base = '/' + BASE_PROJECT_PATH
-  //   // 压缩 Html 插件
-  //   config.define = {
-  //     'process.env.NODE_ENV': '"production"'
-  //   }
-  // }
-  console.log('localConfig:', localConfig)
-  return localConfig
-}
+  const { mode, command } = viteConfig as ConfigEnv
+  const env = loadEnv(mode, process.cwd())
+  const isBuild = command === 'build'
 
-export default () => {
-  return {
-    server: {
-      host: '0.0.0.0',
-      port: 5010
+  if (isBuild) {
+    config.base = '/' + BASE_PROJECT_PATH
+    // 压缩 Html 插件
+    config.define = {
+      'process.env.NODE_ENV': '"production"'
     }
+  } else {
+    config.plugins = [
+      ...config.plugins,
+      createHtmlPlugin({
+        inject: {
+          data: {
+            ...env,
+            devServerToolScript: `<script type="module" src="/winkey_tool/js/index.js"></script>`,
+            devServerToolCss: `<link href="/winkey_tool/css/index.css" rel="stylesheet" >`
+          }
+        }
+      })
+    ]
   }
+
+  return config
 }

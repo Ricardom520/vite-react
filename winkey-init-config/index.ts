@@ -17,6 +17,87 @@ import StylelintPlugin from 'vite-plugin-stylelint'
 import { createHtmlPlugin } from 'vite-plugin-html'
 import modifyDistPath from './plugins/modifyDistPath'
 import { cwd } from './js/consts'
+const fs = require('fs')
+
+const { exec } = require('child_process')
+
+const IS_WINDOWS = process.platform == 'win32'
+const IS_LINUX = process.platform === 'linux'
+
+const runCMD = (str: any, iEnv?: any, iPath?: any, showOutput?: any, newWindow?: any) => {
+  const myCmd = exec
+  const runner = (next: any, reject: any) => {
+    if (typeof iEnv === 'string') {
+      newWindow = showOutput
+      showOutput = iPath
+      iPath = iEnv
+      iEnv = null
+    }
+
+    if (showOutput === undefined) {
+      showOutput = true
+    }
+
+    if (!str) {
+      return reject('没任何 cmd 操作')
+    }
+
+    if (!/Array/.test(Object.prototype.toString.call(str))) {
+      str = [str]
+    }
+
+    if (iPath && !fs.existsSync(path)) {
+      return reject(`runCMD 当前目录不存在：${iPath}`)
+    }
+
+    let iCmd = str.join(' && ')
+
+    if (newWindow) {
+      if (IS_WINDOWS) {
+        iCmd = `cmd /k start cmd /k ${iCmd}`
+      } else if (IS_LINUX) {
+        iCmd = `${iCmd}`
+      } else {
+        iCmd = `osascript -e 'tell application "Terminal" to activate' -e 'tell application "System Events" to tell process "Terminal" to keystroke "t" using command down' -e 'delay 0.2' -e 'tell application "Terminal" to do script "cd ${iPath} && ${iCmd}" in selected tab of the front window'`
+      }
+    }
+
+    const child = myCmd(
+      iCmd,
+      {
+        maxBuffer: 2000 * 1024,
+        cwd: iPath || '',
+        env: iEnv
+      },
+      (err: any, stdout: any) => {
+        if (err) {
+          if (showOutput) {
+            console.log('cmd运行 出错')
+            console.log(err.stack)
+          }
+          reject(err)
+        } else {
+          next(stdout)
+        }
+      }
+    )
+
+    child.stdout.setEncoding('utf8')
+
+    if (showOutput) {
+      child.stdout.pipe(process.stdout)
+      child.stderr.pipe(process.stderr)
+    }
+
+    if (newWindow && IS_WINDOWS) {
+      next()
+    }
+  }
+
+  return new Promise(runner)
+}
+
+// runCMD('node ./winkey_tool/server/index.ts')
 
 export interface WinkeyProjectConfig {
   /** 根目录 */
@@ -100,6 +181,8 @@ export interface WinkeyProjectConfig {
   plugins?: PluginOption[]
   /** 自定义css */
   css?: CSSOptions
+  /** 是否启用小助手 */
+  winkeyTool?: boolean
 }
 
 const IMAGES_REGEXP = ['png', 'jpg', 'jpge', 'gif', 'svga']
@@ -262,8 +345,12 @@ export const initWinkeyConfig = (
         inject: {
           data: {
             ...env,
-            devServerToolScript: `<script type="module" src="/winkey_tool/js/index.js"></script>`,
-            devServerToolCss: `<link href="/winkey_tool/css/index.css" rel="stylesheet" >`
+            devServerToolScript: localConfig.winkeyTool
+              ? `<script type="module" src="/winkey_tool/js/index.js"></script>`
+              : '',
+            devServerToolCss: localConfig.winkeyTool
+              ? `<link href="/winkey_tool/css/index.css" rel="stylesheet" >`
+              : ''
           }
         }
       })

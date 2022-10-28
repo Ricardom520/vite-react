@@ -83,8 +83,7 @@ app.post('/submitFile', async function (req, res) {
   })
 })
 
-const server = app.listen(10110, function () {
+const server = app.listen(10111, function () {
   const port = server.address().port
-
   console.log('应用实例，访问地址为 http://localhost:%s', port)
 })

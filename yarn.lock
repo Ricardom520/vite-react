@@ -1164,10 +1164,10 @@
   resolved "https://registry.yarnpkg.com/@types/minimist/-/minimist-1.2.2.tgz#ee771e2ba4b3dc5b372935d549fd9617bf345b8c"
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
-"@types/node@^18.7.18":
-  version "18.11.3"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.3.tgz#78a6d7ec962b596fc2d2ec102c4dd3ef073fea6a"
-  integrity sha512-fNjDQzzOsZeKZu5NATgXUPsaFaTxeRgFXoosrHivTl8RGeV733OLawXsGfEk9a8/tySyZUyiZ6E8LcjPFZ2y1A==
+"@types/node@^18.11.4":
+  version "18.11.4"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-18.11.4.tgz#7017a52e18dfaad32f55eebd539993014441949c"
+  integrity sha512-BxcJpBu8D3kv/GZkx/gSMz6VnTJREBj/4lbzYOQueUOELkt8WrO6zAcSPmp9uRPEW/d+lUO8QK0W2xnS1hEU0A==
 
 "@types/normalize-package-data@^2.4.0":
   version "2.4.1"
@@ -4888,14 +4888,14 @@ vite-plugin-html@^3.2.0:
     node-html-parser "^5.3.3"
     pathe "^0.2.0"
 
-vite-plugin-stylelint@^3.0.7:
+vite-plugin-stylelint@^3.0.7, vite-plugin-stylelint@^3.0.8:
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/vite-plugin-stylelint/-/vite-plugin-stylelint-3.0.8.tgz#5410735923dfdeb357a08068813383497cbdd39f"
   integrity sha512-LMxvT+3soQBJKe+Ii2MkFEH+/N40k3oGyaX0WsNDLdfRaKh1Ea8DFrg28DtoCTry+fOfE6p5+6hOvG8/cGEBmg==
   dependencies:
     "@rollup/pluginutils" "^4.2.1"
 
-vite-tsconfig-paths@^3.5.1:
+vite-tsconfig-paths@^3.5.1, vite-tsconfig-paths@^3.5.2:
   version "3.5.2"
   resolved "https://registry.yarnpkg.com/vite-tsconfig-paths/-/vite-tsconfig-paths-3.5.2.tgz#fd3232f93c426311d7e0d581187d8b63fff55fbc"
   integrity sha512-xJMgHA2oJ28QCG2f+hXrcqzo7IttrSRK4A//Tp94CfuX5eetOx33qiwXHUdi3FwkHP2ocpxHuvE45Ix67gwEmQ==
@@ -4946,6 +4946,19 @@ which@^2.0.1:
   integrity sha512-BLI3Tl1TW3Pvl70l3yq3Y64i+awpwXqsGBYWkkqMtnbXgrMD+yj7rhW0kuEDxzJaYXGjEW5ogapKNMEKNMjibA==
   dependencies:
     isexe "^2.0.0"
+
+winkey-init-config-vite@^1.0.8-alpha.0:
+  version "1.0.8-alpha.0"
+  resolved "https://registry.yarnpkg.com/winkey-init-config-vite/-/winkey-init-config-vite-1.0.8-alpha.0.tgz#6c47faf1b9f9b84c88205dec4d5f7f3a46a95710"
+  integrity sha512-nXhOFNjekm8u+6AfSju/LwjUPxRY2IbrTYW7n3PsOI6HE6AgiSBwFb4xyfA6UL+wCUpPpzoLCmDsK13KD8Gqng==
+  dependencies:
+    "@vitejs/plugin-legacy" "^2.2.0"
+    "@vitejs/plugin-react" "^2.1.0"
+    typescript "^4.8.4"
+    vite-plugin-eslint "^1.8.1"
+    vite-plugin-html "^3.2.0"
+    vite-plugin-stylelint "^3.0.8"
+    vite-tsconfig-paths "^3.5.2"
 
 word-wrap@^1.2.3:
   version "1.2.3"

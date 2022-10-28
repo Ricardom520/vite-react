@@ -1,4 +1,4 @@
-import path from 'path/posix'
+import path from 'path'
 import { Plugin } from 'vite'
 const fs = require('fs')
 

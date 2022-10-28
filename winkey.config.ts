@@ -1,3 +1,4 @@
+// import { initWinkeyConfig, WinkeyProjectConfig } from 'winkey-init-config-vite'
 import { initWinkeyConfig, WinkeyProjectConfig } from './winkey-init-config'
 const pkg = require('./package.json')
 
@@ -28,7 +29,8 @@ const winkeyConfig: WinkeyProjectConfig = {
   },
   server: {
     port: 9999
-  }
+  },
+  winkeyTool: false
 }
 
 export default initWinkeyConfig.bind(this, winkeyConfig)
